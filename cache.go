@@ -18,14 +18,15 @@ type cache struct {
 
 func init() {
 	c = &cache{}
-	ticker := time.NewTicker(cacheTTL)
 
-	// refresh cache from time to time.
-	for {
-		saveCache(fetchServices())
+	go func(ticker *time.Ticker) {
+		// refresh cache from time to time.
+		for {
+			saveCache(fetchServices())
 
-		<-ticker.C
-	}
+			<-ticker.C
+		}
+	}(time.NewTicker(cacheTTL))
 }
 
 func fetchServices() []service.Service {

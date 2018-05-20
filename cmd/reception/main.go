@@ -10,6 +10,7 @@ import (
 func main() {
 	mux := http.NewServeMux()
 	mux.Handle("/", reception.Server())
+	mux.Handle("/services", reception.Info())
 
-	log.Fatal(http.ListenAndServe(":8080", mux))
+	log.Fatal(http.ListenAndServeTLS(":8080", "cert/server.crt", "cert/server.key", mux))
 }

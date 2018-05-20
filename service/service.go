@@ -16,3 +16,7 @@ type Service struct {
 	Description string `json:"description"`
 	Schema      Schema `json:"schema"`
 }
+
+// Response of the Service.
+type Response struct {
+}
