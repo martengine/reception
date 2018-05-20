@@ -192,6 +192,11 @@ func (d *decoder) findValue() ([]byte, error) {
 			continue
 		}
 
+		if expect == '"' && d.data[d.index-1] == '\\' {
+			d.index++
+			continue
+		}
+
 		result = d.data[startIndex+1 : d.index]
 		d.index++
 	}
