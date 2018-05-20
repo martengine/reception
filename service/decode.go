@@ -34,10 +34,14 @@ func (d *decoder) decode() error {
 	var value []byte
 
 	var err error
+
+	// walk through the whole data.
 	for {
+		// find the key first.
 		key, err = d.findKey()
 		if err != nil {
 			if err == io.EOF {
+				// in case if there was holistic key.
 				d.result[key] = nil
 				return nil
 			}
@@ -45,8 +49,10 @@ func (d *decoder) decode() error {
 			return err
 		}
 
+		// find the value first.
 		if value, err = d.findValue(); err != nil {
 			if err == io.EOF {
+				// in case if there was holistic key.
 				d.result[key] = nil
 				return nil
 			}
@@ -54,6 +60,7 @@ func (d *decoder) decode() error {
 			return err
 		}
 
+		// save it to results.
 		d.result[key] = value
 	}
 }
@@ -81,11 +88,12 @@ func (d *decoder) findKey() (string, error) {
 				continue
 			}
 
+			// key starts with doublequote.
 			if c != '"' {
 				return "", errors.New("unexpected '" + string(c) + "' at index " + strconv.Itoa(d.index))
 			}
 
-			// key is starting right here.
+			// key starts right here.
 			keyStarted = true
 			startIndex = d.index
 			d.index++
@@ -129,6 +137,8 @@ func (d *decoder) findValue() ([]byte, error) {
 
 		c := d.data[d.index]
 
+		// when we found result it's good to skip all the valid characters until the
+		// new key starts.
 		if result != nil {
 			if c == ' ' || c == '\n' || c == '\t' || c == ',' {
 				d.index++
@@ -157,6 +167,8 @@ func (d *decoder) findValue() ([]byte, error) {
 				}
 			}
 
+			// the symbol that marks the beggining of value
+			// also has specific symbol that would mark the end of the value.
 			switch c {
 			case '"':
 				expect = '"'
@@ -174,6 +186,7 @@ func (d *decoder) findValue() ([]byte, error) {
 			continue
 		}
 
+		// value still going.
 		if c != expect {
 			d.index++
 			continue
