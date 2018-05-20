@@ -38,7 +38,7 @@ func streamResponse(w http.ResponseWriter, r *http.Request, flusher http.Flusher
 // Info renders the list of public registered services with all available information.
 func Info() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		resp := struct{ Services []service.Service }{Services: PublicServices()}
+		resp := struct{ Services []service.Service }{Services: service.Public()}
 		body, err := json.Marshal(resp)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)

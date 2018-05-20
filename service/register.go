@@ -1,10 +1,8 @@
-package reception
+package service
 
 import (
 	"sync"
 	"time"
-
-	"github.com/martengine/reception/service"
 )
 
 const cacheTTL = 5 * time.Minute
@@ -12,7 +10,7 @@ const cacheTTL = 5 * time.Minute
 var c *cache
 
 type cache struct {
-	services map[string]service.Service
+	services map[string]Service
 	mutex    sync.RWMutex
 }
 
@@ -22,18 +20,18 @@ func init() {
 	go func(ticker *time.Ticker) {
 		// refresh cache from time to time.
 		for {
-			saveCache(fetchServices())
+			saveCache(fetch())
 
 			<-ticker.C
 		}
 	}(time.NewTicker(cacheTTL))
 }
 
-func fetchServices() []service.Service {
-	return []service.Service{}
+func fetch() []Service {
+	return []Service{}
 }
 
-func saveCache(services []service.Service) {
+func saveCache(services []Service) {
 	for _, service := range services {
 		c.mutex.Lock()
 		c.services[service.Name] = service
@@ -41,20 +39,20 @@ func saveCache(services []service.Service) {
 	}
 }
 
-// ServiceByName returns known service instance. If false is returned - service is unknown.
-func ServiceByName(name string) (service.Service, bool) {
+// ByName returns known service instance. If false is returned - service is unknown.
+func ByName(name string) (Service, bool) {
 	c.mutex.RLock()
 	service, ok := c.services[name]
 	c.mutex.RUnlock()
 	return service, ok
 }
 
-// PublicServices returns a list of known public services.
-func PublicServices() []service.Service {
+// Public returns a list of known public services.
+func Public() []Service {
 	c.mutex.RLock()
 	defer c.mutex.RUnlock()
 
-	var services []service.Service
+	var services []Service
 	for _, service := range c.services {
 		if !service.Public {
 			continue
